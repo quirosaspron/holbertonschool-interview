@@ -1,70 +1,50 @@
 #!/usr/bin/python3
 """
-This script reads input from stdin line by line and computes metrics.
-
-It expects input lines in the following format:
-<IP Address> - [<date>] "GET /projects/260 HTTP/1.1" <status code> <file size>
-
-The script processes each valid line to:
-- Keep a running total of the file sizes.
-- Count occurrences of specific HTTP status codes:
-  200, 301, 400, 401, 403, 404, 405, and 500.
-
-Metrics are printed every 10 lines and also when the script is interrupted
-with a keyboard signal (CTRL + C). If a status code is not found in the input,
-it is not printed in the output.
-
-Output format:
-- File size: <total size>
-- <status code>: <count> (only for status codes with non-zero counts)
+Task - Script that reads stdin liny by line and computes metrics
 """
+
 import sys
-from collections import defaultdict
 
-# Initialize variables to keep track of metrics
-total_size = 0
-status_codes_count = defaultdict(int)  # Store counts for each status code
-valid_status_codes = {"200", "301", "400", "401", "403", "404", "405", "500"}
-line_count = 0
+if __name__ == "__main__":
+    # Initialize status code dictionary and counters
+    st_code = {
+            "200": 0,
+            "301": 0,
+            "400": 0,
+            "401": 0,
+            "403": 0,
+            "404": 0,
+            "405": 0,
+            "500": 0
+            }
+    count = 1
+    file_size = 0
 
+    def parse_line(line):
+        """Read, parse and grab data"""
+        try:
+            parsed_line = line.split()
+            status_code = parsed_line[-2]
+            if status_code in st_code.keys():
+                st_code[status_code] += 1
+            return int(parsed_line[-1])
+        except Exception:
+            return 0
 
-def print_metrics():
-    """Print the total file size and status code counts in ascending order."""
-    print(f"File size: {total_size}")
-    for code in sorted(status_codes_count):
-        if status_codes_count[code] > 0:
-            print(f"{code}: {status_codes_count[code]}")
+    def print_stats():
+        """Print stats in ascending order"""
+        print("File size: {}".format(file_size))
+        for key in sorted(st_code.keys()):
+            if st_code[key]:
+                print("{}: {}".format(key, st_code[key]))
 
-
-try:
-    for line in sys.stdin:
-        parts = line.split()
-        # Validate the input format
-        if len(parts) < 7:
-            continue  # Skip invalid lines
-
-        # Extract status code and file size from the line
-        status_code = parts[-2]
-        file_size = parts[-1]
-
-        # Update metrics if the status code and file size are valid
-        if status_code in valid_status_codes:
-            try:
-                total_size += int(file_size)
-                status_codes_count[status_code] += 1
-            except ValueError:
-                continue  # Skip lines with invalid file size
-
-        line_count += 1
-
-        # Print metrics after every 10 lines
-        if line_count % 10 == 0:
-            print_metrics()
-
-except KeyboardInterrupt:
-    # Print metrics when CTRL + C is pressed
-    print_metrics()
-    sys.exit(0)
-
-# Print metrics one last time if the input ends
-print_metrics()
+    try:
+        for line in sys.stdin:
+            file_size += parse_line(line)
+            if count % 10 == 0:
+                print_stats()
+            count += 1
+    except KeyboardInterrupt:
+        print_stats()
+        raise
+    print_stats()
