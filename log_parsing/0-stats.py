@@ -1,12 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
+"""reads stdin line by line and computes metrics"""
 import sys
 from collections import defaultdict
+
 
 # Initialize variables to keep track of metrics
 total_size = 0
 status_codes_count = defaultdict(int)  # Store counts for each status code
 valid_status_codes = {"200", "301", "400", "401", "403", "404", "405", "500"}
 line_count = 0
+
 
 def print_metrics():
     """Print the total file size and status code counts in ascending order."""
@@ -15,10 +18,10 @@ def print_metrics():
         if status_codes_count[code] > 0:
             print(f"{code}: {status_codes_count[code]}")
 
+
 try:
     for line in sys.stdin:
         parts = line.split()
-        
         # Validate the input format
         if len(parts) < 7:
             continue  # Skip invalid lines
@@ -48,4 +51,3 @@ except KeyboardInterrupt:
 
 # Print metrics one last time if the input ends
 print_metrics()
-
