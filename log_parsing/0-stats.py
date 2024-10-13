@@ -1,8 +1,25 @@
 #!/usr/bin/python3
-"""reads stdin line by line and computes metrics"""
+"""
+This script reads input from stdin line by line and computes metrics.
+
+It expects input lines in the following format:
+<IP Address> - [<date>] "GET /projects/260 HTTP/1.1" <status code> <file size>
+
+The script processes each valid line to:
+- Keep a running total of the file sizes.
+- Count occurrences of specific HTTP status codes:
+  200, 301, 400, 401, 403, 404, 405, and 500.
+
+Metrics are printed every 10 lines and also when the script is interrupted
+with a keyboard signal (CTRL + C). If a status code is not found in the input,
+it is not printed in the output.
+
+Output format:
+- File size: <total size>
+- <status code>: <count> (only for status codes with non-zero counts)
+"""
 import sys
 from collections import defaultdict
-
 
 # Initialize variables to keep track of metrics
 total_size = 0
